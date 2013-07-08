@@ -170,7 +170,17 @@ class IDF_Commit extends Pluf_Model
         foreach ($extra as $key => $val) {
             $commit->extra->setVal($key, $val);
         }
-        $commit->notify($project->getConf());
+
+	// Only generate commit emails if we are calling via system script such as a
+	// post-commit hook. This avoids generating emails when bots browse commits
+	// for repos imported with past history that Indefero has not cached in it's
+	// DB.
+
+	if (empty($_SERVER["REQUEST_METHOD"]))
+	{
+        	$commit->notify($project->getConf());
+	}
+
         return $commit;
     }
 
